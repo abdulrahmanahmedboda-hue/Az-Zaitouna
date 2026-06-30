@@ -3,48 +3,47 @@ import pypdf
 import requests
 import json
 
-# 1. إعدادات الصفحة وإجبار الواجهة السوداء الفخمة بـ CSS مخصص
+# 1. إعدادات الصفحة
 st.set_page_config(page_title="تطبيق الزتونة الدراسي | By BoDa", page_icon="📚", layout="wide")
 
+# إجبار الواجهة السوداء الفخمة بـ CSS مخصص (تم إصلاح القائمة الجانبية لتكون داكنة تماماً)
 st.markdown("""
     <style>
-    /* تثبيت الخلفية السوداء للتطبيق بالكامل والخطوط الفاتحة */
+    /* خلفية التطبيق بالكامل */
     .stApp {
         background-color: #0E1117 !important;
-        color: #F4F6FF !important;
     }
+    /* خلفية القائمة الجانبية (Sidebar) السليمة 100% */
+    [data-testid="stSidebar"], section[data-testid="stSidebar"] {
+        background-color: #1A1D24 !important;
+        border-right: 1px solid #333 !important;
+    }
+    /* توحيد لون النصوص باللون الفاتح لتقرأ بوضوح في كل مكان */
     h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
         color: #F4F6FF !important;
     }
-    /* ضبط لون الخلفية للقائمة الجانبية لتكون داكنة ومتناسقة */
-    div[data-testid="stSidebar"] {
-        background-color: #1A1D24 !important;
-    }
-    div[data-testid="stSidebar"] * {
-        color: #F4F6FF !important;
-    }
-    /* تلوين التبويبات (Tabs) بشكل جذاب */
-    .stTabs [data-baseweb="tab"] {
+    /* تلوين نصوص التبويبات (Tabs) */
+    .stTabs [data-baseweb="tab"] p {
         color: #41C9E2 !important;
         font-size: 1.1rem !important;
     }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+    .stTabs [data-baseweb="tab"][aria-selected="true"] p {
         color: #FFA447 !important;
         font-weight: bold !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# العناوين الرئيسية للتطبيق
+# العناوين الرئيسية للتطبيق (تم إصلاح كلمة المبرمج)
 st.markdown("<h1 style='text-align: center; color: #41C9E2 !important;'>📚 تطبيق الزتونة الدراسي</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #F4F6FF !important;'>صاحبك الذكي في المذاكرة - تلخيص حقيقي وتشجيع من القلب 🚀</p>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #FFA447 !important;'>💪 (By BoDa) تطوير وإعداد Mbrg: عبد الرحمن 🇪🇬</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: #FFA447 !important;'>💪 (By BoDa) تطوير وإعداد المبرمج: عبد الرحمن 🇪🇬</h3>", unsafe_allow_html=True)
 st.write("---")
 
 # 2. ربط الذكاء الاصطناعي بمفتاحك السري مباشرة
 OPENROUTER_API_KEY = "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"
 
-# 3. قاعدة البيانات الداخلية لحفظ النتائج لضمان عدم الاختفاء عند التنقل
+# 3. قاعدة البيانات الداخلية لحفظ النتائج لضمان عدم الاختفاء
 if 'summary_data' not in st.session_state:
     st.session_state['summary_data'] = "سجل هنا الخلاصة والتحليل الفظيع للمنهج بعد رفع الملف وضغط زر المعالجة! 📝"
 if 'exam_capsule' not in st.session_state:
@@ -52,7 +51,7 @@ if 'exam_capsule' not in st.session_state:
 if 'quiz_questions' not in st.session_state:
     st.session_state['quiz_questions'] = "⚠️ لم يتم توليد اختبار بعد. ارفع ملف الـ PDF واضغط على معالجة لتحدي الذكاء! 🤖"
 
-# 4. لوحة التحكم الجانبية (Sidebar) - ثابتة وظاهرة دائماً
+# 4. لوحة التحكم الجانبية (Sidebar) - ثابتة وظاهرة دائماً بالألوان الصحيحة
 with st.sidebar:
     st.markdown("<h2 style='color: #41C9E2 !important;'>⚙️ لوحة التحكم</h2>", unsafe_allow_html=True)
     st.write("---")
@@ -103,7 +102,7 @@ if process_btn:
                 else:
                     truncated_text = pdf_text[:20000]
                     
-                    # طلب التلخيص بأسلوب مصري حماسي
+                    # طلب التلخيص
                     summary_prompt = f"قم بقراءة هذا المنهج وتلخيصه بأسلوب أخوي مصري مبسط، مليء بالطاقة الإيجابية والتشجيع كصديق مقرب للطلاب وركز على النقاط الذهبية والمصطلحات الهامة: {truncated_text}"
                     st.session_state['summary_data'] = ask_openrouter(summary_prompt)
                     
@@ -111,8 +110,8 @@ if process_btn:
                     capsule_prompt = f"استخرج خلاصة الخلاصة وأهم الأسئلة المتوقعة بناءً على هذا المنهج بأسلوب يهدئ روع الطالب ليلة الامتحان ويجعل المراجعة سريعة وممتعة جداً: {truncated_text}"
                     st.session_state['exam_capsule'] = ask_openrouter(capsule_prompt)
                     
-                    # طلب إنشاء اختبار تفاعلي دقيق
-                    quiz_prompt = f"قم بإنشاء 3 أسئلة اختيار من متعدد (أ، ب، ج) بناءً على هذا المنهج، وفي نهاية النص تماماً اكتب مفتاح الإجابات الصحيحة بوضوح مثلاً (السؤال 1: أ، السؤال 2: ب， السؤال 3: ج). النص: {truncated_text[:15000]}"
+                    # طلب إنشاء اختبار
+                    quiz_prompt = f"قم بإنشاء 3 أسئلة اختيار من متعدد (أ، ب، ج) بناءً على هذا المنهج، وفي نهاية النص تماماً اكتب مفتاح الإجابات الصحيحة بوضوح مثلاً (السؤال 1: أ، السؤال 2: ب، السؤال 3: ج). النص: {truncated_text[:15000]}"
                     st.session_state['quiz_questions'] = ask_openrouter(quiz_prompt)
                     
                     st.balloons()
@@ -122,7 +121,7 @@ if process_btn:
     else:
         st.warning("يرجى رفع ملف PDF أولاً من القائمة الجانبية قبل البدء! 📂")
 
-# 6. عرض الأقسام الرئيسية والتبويبات (متاحة وثابتة دائماً على الشاشة)
+# 6. عرض الأقسام الرئيسية والتبويبات
 tab1, tab2, tab3, tab4 = st.tabs(["🔥 تحدي الذكاء", "🧠 قاموس الزتونة", "📝 الملخص الفظيع والمنظم", "🏆 لوحة الشرف"])
 
 with tab1:
