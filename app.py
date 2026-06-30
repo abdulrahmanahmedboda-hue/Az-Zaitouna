@@ -3,72 +3,87 @@ import pypdf
 import requests
 import json
 
-# 1. إعدادات الصفحة
+# 1. إعدادات الصفحة الأساسية
 st.set_page_config(page_title="تطبيق الزتونة الدراسي | By BoDa", page_icon="📚", layout="wide")
 
-# إجبار الواجهة السوداء الفخمة بـ CSS مخصص (تم إصلاح القائمة الجانبية لتكون داكنة تماماً)
+# 2. أكواد التصميم (CSS) الخارقة لضبط اللغة العربية (RTL) والألوان الفخمة
 st.markdown("""
     <style>
-    /* خلفية التطبيق بالكامل */
+    /* إجبار التطبيق بالكامل على الاتجاه من اليمين لليسار عشان العربي يظبط */
+    .stApp, .stMarkdown, div[data-testid="stSidebar"], div.stButton > button {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+    
+    /* خلفية التطبيق الأساسية (أسود فخم) */
     .stApp {
         background-color: #0E1117 !important;
     }
-    /* خلفية القائمة الجانبية (Sidebar) السليمة 100% */
+    
+    /* خلفية القائمة الجانبية وضبط ألوانها */
     [data-testid="stSidebar"], section[data-testid="stSidebar"] {
         background-color: #1A1D24 !important;
-        border-right: 1px solid #333 !important;
+        border-left: 1px solid #333 !important; /* الخط الفاصل على اليسار الآن */
     }
+    
     /* توحيد لون النصوص باللون الفاتح لتقرأ بوضوح في كل مكان */
-    h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+    h1, h2, h3, h4, h5, h6, p, span, label, div.stMarkdown p {
         color: #F4F6FF !important;
     }
-    /* تلوين نصوص التبويبات (Tabs) */
+    
+    /* تلوين نصوص التبويبات (Tabs) وتكبيرها */
     .stTabs [data-baseweb="tab"] p {
         color: #41C9E2 !important;
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
     }
     .stTabs [data-baseweb="tab"][aria-selected="true"] p {
         color: #FFA447 !important;
         font-weight: bold !important;
     }
+    
+    /* رسائل التنبيه والنجاح (تنسيق أنيق) */
+    div[data-testid="stAlert"] {
+        direction: rtl !important;
+        text-align: right !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# العناوين الرئيسية للتطبيق (تم إصلاح كلمة المبرمج)
+# العناوين الرئيسية للتطبيق
 st.markdown("<h1 style='text-align: center; color: #41C9E2 !important;'>📚 تطبيق الزتونة الدراسي</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #F4F6FF !important;'>صاحبك الذكي في المذاكرة - تلخيص حقيقي وتشجيع من القلب 🚀</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 1.3rem; color: #F4F6FF !important;'>صاحبك الذكي في المذاكرة - تلخيص حقيقي وتشجيع من القلب 🚀</p>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #FFA447 !important;'>💪 (By BoDa) تطوير وإعداد المبرمج: عبد الرحمن 🇪🇬</h3>", unsafe_allow_html=True)
 st.write("---")
 
-# 2. ربط الذكاء الاصطناعي بمفتاحك السري مباشرة
+# 3. المفتاح السري للذكاء الاصطناعي (مثبت كما طلبت)
 OPENROUTER_API_KEY = "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"
 
-# 3. قاعدة البيانات الداخلية لحفظ النتائج لضمان عدم الاختفاء
+# 4. قاعدة البيانات الداخلية (Session State)
 if 'summary_data' not in st.session_state:
-    st.session_state['summary_data'] = "سجل هنا الخلاصة والتحليل الفظيع للمنهج بعد رفع الملف وضغط زر المعالجة! 📝"
+    st.session_state['summary_data'] = "📝 لم يتم استخراج الملخص بعد. ارفع المحاضرة واضغط على زر المعالجة!"
 if 'exam_capsule' not in st.session_state:
-    st.session_state['exam_capsule'] = "هنا هتلاقي خلاصة الخلاصة وأهم الأسئلة المتوقعة ليلة الامتحان! 🧠"
+    st.session_state['exam_capsule'] = "🧠 القاموس فارغ حالياً. نحن في انتظار الملف الخاص بك لإنشاء كبسولة الامتحان."
 if 'quiz_questions' not in st.session_state:
-    st.session_state['quiz_questions'] = "⚠️ لم يتم توليد اختبار بعد. ارفع ملف الـ PDF واضغط على معالجة لتحدي الذكاء! 🤖"
+    st.session_state['quiz_questions'] = ""
 
-# 4. لوحة التحكم الجانبية (Sidebar) - ثابتة وظاهرة دائماً بالألوان الصحيحة
+# 5. لوحة التحكم الجانبية (Sidebar)
 with st.sidebar:
     st.markdown("<h2 style='color: #41C9E2 !important;'>⚙️ لوحة التحكم</h2>", unsafe_allow_html=True)
     st.write("---")
     
     st.markdown("<h3 style='color: #4CCEAC !important;'>📂 خطوة 1: ارفع المحاضرة</h3>", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("اختار ملف الـ PDF المنهج الدراسي", type=["pdf"])
+    uploaded_file = st.file_uploader("اختار ملف بي دي إف (PDF) للمنهج", type=["pdf"])
     
     st.write("---")
     st.markdown("<h3 style='color: #4CCEAC !important;'>🟩 خطوة 2: استخراج الخلاصة</h3>", unsafe_allow_html=True)
     process_btn = st.button("🚀 ابدأ معالجة السحر الذكي", use_container_width=True)
     
     st.write("---")
-    st.markdown("<h3 style='color: #FFA447 !important;'>🏆 نظام مكافآت الطلاب</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: #FFA447 !important;'>🏆 مكافآت الطلاب</h3>", unsafe_allow_html=True)
     st.info("الرتبة الحالية: بروفيسور الزتونة 🏅")
     st.progress(100)
 
-# دالة إرسال الطلبات للسيرفر لتشغيل نموذج Gemini 1.5 Pro المجاني
+# دالة الاتصال بالذكاء الاصطناعي
 def ask_openrouter(prompt_text):
     try:
         headers = {
@@ -81,14 +96,17 @@ def ask_openrouter(prompt_text):
         }
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, data=json.dumps(data))
         result = response.json()
-        return result['choices'][0]['message']['content']
+        if 'choices' in result:
+            return result['choices'][0]['message']['content']
+        else:
+            return "حدث خطأ غير متوقع من السيرفر، يرجى المحاولة لاحقاً."
     except Exception as e:
         return f"تعذر الاتصال بالذكاء الاصطناعي: {e}"
 
-# 5. تشغيل معالجة الملف واستخراج البيانات عند الضغط
+# 6. معالجة الملف عند الضغط على الزر
 if process_btn:
     if uploaded_file is not None:
-        with st.spinner("جاري تشغيل السحر الذكي وقراءة المنهج بواسطة صاحبك الذكي Gemini..."):
+        with st.spinner("جاري تشغيل السحر الذكي وقراءة المنهج بواسطة صاحبك الذكي..."):
             try:
                 pdf_reader = pypdf.PdfReader(uploaded_file)
                 pdf_text = ""
@@ -97,67 +115,71 @@ if process_btn:
                     if text:
                         pdf_text += text
                 
-                if pdf_text.strip() == "":
-                    st.error("الملف المرفوع فارغ أو عبارة عن صور فقط ولم نتمكن من استخراج النصوص.")
+                if not pdf_text.strip():
+                    st.error("الملف المرفوع فارغ أو عبارة عن صور فقط ولا يحتوي على نصوص قابلة للقراءة.")
                 else:
-                    truncated_text = pdf_text[:20000]
+                    # أخذ أول 15000 حرف لتجنب الضغط على السيرفر
+                    truncated_text = pdf_text[:15000]
                     
-                    # طلب التلخيص
-                    summary_prompt = f"قم بقراءة هذا المنهج وتلخيصه بأسلوب أخوي مصري مبسط، مليء بالطاقة الإيجابية والتشجيع كصديق مقرب للطلاب وركز على النقاط الذهبية والمصطلحات الهامة: {truncated_text}"
+                    summary_prompt = f"قم بقراءة هذا المنهج وتلخيصه بأسلوب أخوي مصري مبسط، مليء بالطاقة الإيجابية والتشجيع وركز على النقاط الذهبية: {truncated_text}"
                     st.session_state['summary_data'] = ask_openrouter(summary_prompt)
                     
-                    # طلب كبسولة الامتحان
-                    capsule_prompt = f"استخرج خلاصة الخلاصة وأهم الأسئلة المتوقعة بناءً على هذا المنهج بأسلوب يهدئ روع الطالب ليلة الامتحان ويجعل المراجعة سريعة وممتعة جداً: {truncated_text}"
+                    capsule_prompt = f"استخرج خلاصة الخلاصة وأهم الأسئلة المتوقعة بناءً على هذا المنهج بأسلوب يهدئ روع الطالب ليلة الامتحان: {truncated_text}"
                     st.session_state['exam_capsule'] = ask_openrouter(capsule_prompt)
                     
-                    # طلب إنشاء اختبار
-                    quiz_prompt = f"قم بإنشاء 3 أسئلة اختيار من متعدد (أ، ب، ج) بناءً على هذا المنهج، وفي نهاية النص تماماً اكتب مفتاح الإجابات الصحيحة بوضوح مثلاً (السؤال 1: أ، السؤال 2: ب، السؤال 3: ج). النص: {truncated_text[:15000]}"
+                    quiz_prompt = f"قم بإنشاء 3 أسئلة اختيار من متعدد (أ، ب، ج) بناءً على هذا المنهج، وفي نهاية النص تماماً اكتب مفتاح الإجابات الصحيحة بوضوح مثلا (السؤال الأول: أ، السؤال الثاني: ب، السؤال الثالث: ج). النص: {truncated_text}"
                     st.session_state['quiz_questions'] = ask_openrouter(quiz_prompt)
                     
                     st.balloons()
-                    st.success("🟢 نظام الفحص الذكي: صاحبك الذكي راجع المستند وتأكد من صحته 100% وجاهز للتحدي! 🤖")
+                    st.success("🟢 نظام الفحص الذكي: تم قراءة المستند بنجاح والتطبيق جاهز للتحدي! 🤖")
             except Exception as e:
-                st.error(f"حدث خطأ أثناء معالجة الملف: {e}")
+                st.error(f"حدث خطأ أثناء قراءة الملف: {e}")
     else:
-        st.warning("يرجى رفع ملف PDF أولاً من القائمة الجانبية قبل البدء! 📂")
+        st.warning("⚠️ يرجى رفع ملف المحاضرة أولاً من القائمة الجانبية قبل البدء!")
 
-# 6. عرض الأقسام الرئيسية والتبويبات
-tab1, tab2, tab3, tab4 = st.tabs(["🔥 تحدي الذكاء", "🧠 قاموس الزتونة", "📝 الملخص الفظيع والمنظم", "🏆 لوحة الشرف"])
+# 7. الأقسام والتبويبات
+tab1, tab2, tab3, tab4 = st.tabs(["🔥 تحدي الذكاء", "🧠 قاموس الزتونة", "📝 الملخص الفظيع", "🏆 لوحة الشرف"])
 
 with tab1:
-    st.markdown("<h3 style='text-align: center; color: #41C9E2 !important;'>🔥 قسم تحدي الذكاء مع صاحبك التفاعلي</h3>", unsafe_allow_html=True)
-    st.markdown("#### 📜 الأسئلة المستخرجة من المنهج:")
-    st.info(st.session_state['quiz_questions'])
+    st.markdown("<h3 style='color: #41C9E2 !important;'>🔥 قسم تحدي الذكاء مع صاحبك التفاعلي</h3>", unsafe_allow_html=True)
     
-    st.write("---")
-    st.markdown("#### 📝 اختار إجاباتك هنا يا بطل عشان نصحح ونشوف العظمة:")
-    q1 = st.radio("السؤال الأول إجابتك هي:", ["أ", "ب", "ج"], key="ans1")
-    q2 = st.radio("السؤال الثاني إجابتك هي:", ["أ", "ب", "ج"], key="ans2")
-    q3 = st.radio("السؤال الثالث إجابتك هي:", ["أ", "ب", "ج"], key="ans3")
-    
-    submit_quiz = st.button("✅ تسليم الإجابات ومعرفة النتيجة")
-    
-    if submit_quiz:
-        if "⚠️ لم يتم توليد" in st.session_state['quiz_questions']:
-            st.warning("يرجى رفع ملف وتوليد الأسئلة أولاً قبل التسليم! 📋")
-        else:
-            st.balloons()
+    if st.session_state['quiz_questions'] == "":
+        st.info("⚠️ عذراً يا بطل، لم يتم توليد اختبار حتى الآن. يرجى رفع الملف بصيغة بي دي إف والضغط على زر المعالجة أولاً.")
+    else:
+        st.markdown("#### 📜 الأسئلة المستخرجة من المنهج:")
+        st.success(st.session_state['quiz_questions'])
+        
+        st.write("---")
+        st.markdown("#### 📝 اختار إجاباتك هنا يا بطل:")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            q1 = st.radio("إجابة السؤال الأول:", ["أ", "ب", "ج"], key="ans1")
+        with col2:
+            q2 = st.radio("إجابة السؤال الثاني:", ["أ", "ب", "ج"], key="ans2")
+        with col3:
+            q3 = st.radio("إجابة السؤال الثالث:", ["أ", "ب", "ج"], key="ans3")
+        
+        st.write("")
+        submit_quiz = st.button("✅ تسليم الإجابات ومعرفة النتيجة")
+        
+        if submit_quiz:
             st.snow()
-            with st.spinner("جاري فحص إجاباتك وكتابة التقييم الحماسي..."):
+            with st.spinner("جاري فحص إجاباتك وتقييم الأداء..."):
                 review_prompt = f"""
-                بناءً على الاختبار ومفتاح الحل التالي:
+                بناءً على الاختبار التالي:
                 {st.session_state['quiz_questions']}
                 
-                إجابات الطالب الحالية:
-                - السؤال الأول: {q1}
-                - السؤال الثاني: {q2}
-                - السؤال الثالث: {q3}
+                إجابات الطالب هي:
+                1: {q1}
+                2: {q2}
+                3: {q3}
                 
-                حلل إجابات الطالب بأسلوب ودود ومصري حماسي جداً، وصحح الأخطاء إن وجدت ببساطة شديدة وشجعه بقوة من قلبك وبطريقة مبهجة.
+                حلل إجابات الطالب بأسلوب مصري حماسي جداً، وصحح الأخطاء ببساطة وشجعه بقوة.
                 """
                 review_result = ask_openrouter(review_prompt)
-                st.markdown("### 📊 تقرير صاحبك الذكي وتقييم الأداء:")
-                st.success(review_result)
+                st.markdown("### 📊 تقرير صاحبك الذكي:")
+                st.info(review_result)
 
 with tab2:
     st.markdown("<h3 style='color: #41C9E2 !important;'>🧠 قاموس الزتونة ومراجعة آخر الدقائق</h3>", unsafe_allow_html=True)
@@ -170,3 +192,4 @@ with tab3:
 with tab4:
     st.markdown("<h3 style='color: #FFA447 !important;'>🏆 لوحة الشرف وأبطال الزتونة الدراسي</h3>", unsafe_allow_html=True)
     st.success("🥇 المتصدر الأبدي ومطور التطبيق الرائع: عبد الرحمن (BoDa) 🇪🇬")
+    st.balloons()
