@@ -7,9 +7,8 @@ from datetime import datetime
 # 1. إعدادات الصفحة الأساسية والثيم الأصلي الفخم
 st.set_page_config(page_title="تطبيق الزتونة الدراسي | By BoDa", page_icon="📚", layout="wide")
 
-# 2. كود الـ CSS الأسطوري لضبط الاتجاه العربي (RTL) والألوان ومنع البقع البيضاء
+# 2. كود الـ CSS الأسطوري المصلح لضبط الاتجاه العربي والألوان ومنع البقع البيضاء
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;700&family=Amiri:ital@1&display=swap" rel="stylesheet">
     <style>
     html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
         direction: rtl !important;
@@ -28,9 +27,9 @@ st.markdown("""
         max-width: 800px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    .cert-title { font-family: 'Reem Kufi', sans-serif; color: #41C9E2; font-size: 50px; }
-    .cert-name { font-family: 'Amiri', serif; color: #FFA447; font-size: 45px; border-bottom: 2px solid #FFA447; display: inline-block; padding: 0 20px; }
-    .cert-text { font-family: 'Reem Kufi', sans-serif; color: #F4F6FF; font-size: 22px; line-height: 1.6; margin-top: 15px; }
+    .cert-title { font-size: 50px; color: #41C9E2; font-weight: bold; }
+    .cert-name { color: #FFA447; font-size: 45px; border-bottom: 2px solid #FFA447; display: inline-block; padding: 0 20px; font-weight: bold; }
+    .cert-text { color: #F4F6FF; font-size: 22px; line-height: 1.6; margin-top: 15px; }
 
     [data-testid="stSidebar"] { 
         background-color: #1A1D24 !important; 
@@ -38,7 +37,6 @@ st.markdown("""
     
     h1, h2, h3, h4, h5, h6, p, span, label { 
         color: #F4F6FF !important; 
-        font-family: 'Reem Kufi', sans-serif;
         text-align: right !important;
     }
     .main-title { font-size: 3.5rem !important; color: #41C9E2 !important; text-shadow: 2px 2px #000; text-align: center !important; }
@@ -118,7 +116,6 @@ if process_btn:
         with st.spinner(f"يا {student_name}، جاري فحص المنهج بأقوى محرك قراءة وصناعة الزتونة العربي..."):
             try:
                 pdf_text = ""
-                # استخدام pdfplumber الجديد بدلاً من pypdf القديم للتحليل الممتاز
                 with pdfplumber.open(uploaded_file) as pdf:
                     for page in pdf.pages:
                         text = page.extract_text()
@@ -129,11 +126,10 @@ if process_btn:
                 else:
                     truncated_text = pdf_text[:15000]
                     
-                    # توليد المحتوى من الذكاء الاصطناعي لجميع الأقسام
                     st.session_state['summary_data'] = ask_openrouter(f"قم بقراءة هذا المنهج وتلخيصه بأسلوب أخوي مصري مبسط ومليء بالطاقة الإيجابية وركز على النقاط الذهبية والمصطلحات: {truncated_text}")
                     st.session_state['exam_capsule'] = ask_openrouter(f"استخرج أهم التريكات الخبيثة والأسئلة المتوقعة والمصطلحات الصعبة ليلة الامتحان بناءً على هذا المنهج: {truncated_text}")
                     st.session_state['quiz_questions'] = ask_openrouter(f"قم بإنشاء 3 أسئلة اختيار من متعدد (أ، ب، ج) تركز على التريكات المهمة في هذا المنهج، وفي نهاية النص تماماً اكتب مفتاح الإجابات الصحيحة بوضوح تام بأسلوب (مفتاح الحل: السؤال 1: أ، السؤال 2: ب، السؤال 3: ج). النص: {truncated_text}")
-                    st.session_state['roadmap_data'] = ask_openrouter(f"بناءً على هذا المنهج، ضع خريطة طريق (Roadmap) وجدول زمني يوضح للطالب كيف يذاكر هذه المادة بالترتيب الصحيح في يوم واحد فقط: {truncated_text}")
+                    st.session_state['roadmap_data'] = ask_openrouter(f"بناءً على هذا المنهج، ضع خريطة طريق (Roadmap) وجدول زمني يوضح للطالب كيف يذاكر هذه المادة بالترتيب الصحيح in يوم واحد فقط: {truncated_text}")
                     st.session_state['cert_msg'] = ask_openrouter(f"اكتب رسالة تهنئة وتشجيع قصيرة جداً ومؤثرة جداً بالطاقة والمحبة للطالب {student_name} بمناسبة تدميره وتفوقه في هذا المنهج الدراسي.")
                     
                     st.session_state['quiz_evaluated'] = False
